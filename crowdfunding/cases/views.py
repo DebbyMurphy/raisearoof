@@ -14,7 +14,7 @@ class CaseList(APIView):
     def post(self, request):
         serializer = CaseSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(owner=request.user)
             return Response(
                 serializer.data,
                 status=status.HTTP_201_CREATED
