@@ -1,11 +1,16 @@
 from django.http import Http404
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Case, Pledge
 from .serializers import CaseSerializer, PledgeSerializer, CaseDetailSerializer
+from .permissions import IsOwnerOrReadOnly
 
 class CaseList(APIView):
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly
+    ]
+
     def get(self, request):
         cases = Case.objects.all()
         serializer = CaseSerializer(cases, many=True)
@@ -25,6 +30,10 @@ class CaseList(APIView):
         )
 
 class CaseDetail(APIView):
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly
+    ]
     
     def get_object(self, pk):
         try:
@@ -36,6 +45,17 @@ class CaseDetail(APIView):
         case = self.get_object(pk)
         serializer = CaseDetailSerializer(case)
         return Response(serializer.data)
+
+    def put(self, request, pk):
+        case = self.get_object(pk)
+        data = request.data
+        serializer = CaseDetailSerializer(
+            instance=case,
+            data=data,
+            partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
 
 class PledgeList(APIView):
     def get(self, request):
