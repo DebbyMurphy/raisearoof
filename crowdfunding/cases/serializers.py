@@ -42,3 +42,6 @@ class CaseDetailSerializer(CaseSerializer):
         instance.owner = validated_data.get('owner', instance.owner)
         instance.save()
         return instance
+
+    def delete(self, instance, validated_data):
+        return Case.objects.delete(**validated_data)

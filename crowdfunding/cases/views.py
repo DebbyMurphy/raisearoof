@@ -57,6 +57,18 @@ class CaseDetail(APIView):
         if serializer.is_valid():
             serializer.save()
 
+    def delete(self, request, pk):
+        case = self.get_object(pk)
+        data = request.data
+        serializer = CaseDetailSerializer(
+            instance=case,
+            data=data,
+            partial=True
+        )
+        if serializer.is_valid():
+            serializer.delete()
+
+
 class PledgeList(APIView):
     def get(self, request):
         pledges = Pledge.objects.all()
